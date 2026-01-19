@@ -79,23 +79,7 @@ model BlacklistedToken {
   createdAt DateTime @default(now())
 }
 
-model Project {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
-  platform    String
 
-  apiKey    String @unique @default(cuid())
-  apiSecret String
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  crashes Crash[]
-  issues  Issue[]
-}
 
 model Crash {
   id String @id @default(cuid())
@@ -125,9 +109,6 @@ model Crash {
   severity    CrashSeverity @default(MEDIUM)
   fingerprint String
 
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-
   issueId String?
   issue   Issue?  @relation(fields: [issueId], references: [id], onDelete: SetNull)
 
@@ -135,7 +116,7 @@ model Crash {
 
   createdAt DateTime @default(now())
 
-  @@index([projectId])
+
   @@index([issueId])
   @@index([fingerprint])
   @@index([timestampUTC])
@@ -162,8 +143,6 @@ model Issue {
 
   tags String[] @default([])
 
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   crashes      Crash[]
   comments     Comment[]
@@ -173,7 +152,6 @@ model Issue {
   updatedAt  DateTime  @updatedAt
   resolvedAt DateTime?
 
-  @@index([projectId])
   @@index([status])
   @@index([priority])
   @@index([assignedToId])

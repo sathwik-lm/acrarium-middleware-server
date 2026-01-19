@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { db } from "../utils/db"; // Import db from utils
+import { db } from "../utils/db"; 
 import { signAccessToken, signRefreshToken } from "../utils/jwt";
 
 export const login = async (req: Request, res: Response) => {
@@ -16,7 +16,6 @@ export const login = async (req: Request, res: Response) => {
   const accessToken = signAccessToken({ userId: user.id, role: user.role });
   const refreshToken = signRefreshToken({ userId: user.id });
 
-  // Store the refresh token in the DB
   const decoded: any = jwt.decode(refreshToken);
   await db.refreshToken.create({
     data: {
