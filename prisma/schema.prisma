@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,8 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
 
 enum UserRole {
   ADMIN
@@ -48,8 +44,6 @@ enum ActivityType {
   COMMENT_ADDED
 }
 
-
-
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -57,77 +51,89 @@ model User {
   name         String?
   role         UserRole @default(VIEWER)
 
-  lastLoginAt  DateTime?
-  lastLoginIP  String?
+  lastLoginAt DateTime?
+  lastLoginIP String?
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  assignedIssues Issue[] @relation("AssignedIssues")
+  assignedIssues Issue[]        @relation("AssignedIssues")
   comments       Comment[]
   activityLogs   ActivityLog[]
+  refreshTokens  RefreshToken[]
 }
 
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
 
+model BlacklistedToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
   platform    String
 
-  apiKey      String   @unique @default(cuid())     
-  apiSecret   String                               
+  apiKey    String @unique @default(cuid())
+  apiSecret String
 
-  isActive    Boolean  @default(true)
+  isActive Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  crashes     Crash[]
-  issues      Issue[]
+  crashes Crash[]
+  issues  Issue[]
 }
 
-
-
-
 model Crash {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  eventId       String   @unique
-  eventType     String   @default("Crash")
-  message       String   @db.Text
-  stackTrace    String   @db.Text
-  stackTraceId  BigInt
+  eventId      String @unique
+  eventType    String @default("Crash")
+  message      String @db.Text
+  stackTrace   String @db.Text
+  stackTraceId BigInt
 
-  appVersion    String
-  sdkVersion    String?
+  appVersion      String
+  sdkVersion      String?
   firmwareVersion String?
 
-  deviceModel   String
-  deviceId      String
+  deviceModel String
+  deviceId    String
 
   cpuTemperature   Float?
   gpuTemperature   Float?
   boardTemperature Float?
 
-  timestampUTC  DateTime
-  uploadedAt    DateTime
+  timestampUTC DateTime
+  uploadedAt   DateTime
 
-  clientId      String
+  clientId String
 
-  severity      CrashSeverity @default(MEDIUM)
-  fingerprint   String
+  severity    CrashSeverity @default(MEDIUM)
+  fingerprint String
 
-  projectId     String?
-  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  issueId       String?
-  issue         Issue?   @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  issueId String?
+  issue   Issue?  @relation(fields: [issueId], references: [id], onDelete: SetNull)
 
-  aiAnalysis    AIAnalysis?
+  aiAnalysis AIAnalysis?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([projectId])
   @@index([issueId])
@@ -136,38 +142,36 @@ model Crash {
   @@index([deviceId])
 }
 
-
-
 model Issue {
-  id               String        @id @default(cuid())
-  title            String
-  fingerprint      String        @unique
+  id          String @id @default(cuid())
+  title       String
+  fingerprint String @unique
 
-  status           IssueStatus   @default(OPEN)
-  priority         IssuePriority @default(MEDIUM)
+  status   IssueStatus   @default(OPEN)
+  priority IssuePriority @default(MEDIUM)
 
-  firstSeen        DateTime
-  lastSeen         DateTime
-  occurrenceCount  Int           @default(1)
+  firstSeen       DateTime
+  lastSeen        DateTime
+  occurrenceCount Int      @default(1)
 
-  sampleMessage    String        @db.Text
-  sampleStackTrace String        @db.Text
+  sampleMessage    String @db.Text
+  sampleStackTrace String @db.Text
 
-  assignedToId     String?
-  assignedTo       User? @relation("AssignedIssues", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedIssues", fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  tags             String[] @default([])
+  tags String[] @default([])
 
-  projectId        String?
-  project          Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  crashes          Crash[]
-  comments         Comment[]
-  aiSuggestion     AISuggestion?
+  crashes      Crash[]
+  comments     Comment[]
+  aiSuggestion AISuggestion?
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  resolvedAt       DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
 
   @@index([projectId])
   @@index([status])
@@ -175,90 +179,80 @@ model Issue {
   @@index([assignedToId])
 }
 
-
-
 model Comment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
+  id      String @id @default(cuid())
+  content String @db.Text
 
-  issueId   String
-  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-
-
 model AIAnalysis {
-  id             String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  crashId        String   @unique
-  crash          Crash    @relation(fields: [crashId], references: [id], onDelete: Cascade)
+  crashId String @unique
+  crash   Crash  @relation(fields: [crashId], references: [id], onDelete: Cascade)
 
-  rootCause      String   @db.Text
-  explanation    String   @db.Text
-  affectedCode   String?  @db.Text
-  confidence     Float
+  rootCause    String  @db.Text
+  explanation  String  @db.Text
+  affectedCode String? @db.Text
+  confidence   Float
 
   modelUsed      String
   processingTime Int
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 }
-
-
 
 model AISuggestion {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  issueId         String   @unique
-  issue           Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId String @unique
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
-  suggestedFix    String   @db.Text
-  codeSnippet     String?  @db.Text
-  reasoning       String   @db.Text
-  similarIssues   String[] @default([])
+  suggestedFix  String   @db.Text
+  codeSnippet   String?  @db.Text
+  reasoning     String   @db.Text
+  similarIssues String[] @default([])
 
-  helpfulCount    Int      @default(0)
-  notHelpfulCount Int      @default(0)
+  helpfulCount    Int @default(0)
+  notHelpfulCount Int @default(0)
 
-  modelUsed       String
-  confidence      Float
+  modelUsed  String
+  confidence Float
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
-
 model CrashPattern {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  patternType     String   
-  patternKey      String
-  description     String   @db.Text
+  patternType String
+  patternKey  String
+  description String @db.Text
 
   occurrences     Int
   affectedDevices Int
   crashRate       Float
 
-  conditions      Json
+  conditions Json
 
-  firstDetected   DateTime
-  lastDetected    DateTime
+  firstDetected DateTime
+  lastDetected  DateTime
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([patternKey])
   @@index([patternType])
 }
-
-
 
 enum AlertType {
   NEW_CRASH
@@ -275,25 +269,23 @@ enum AlertChannel {
 }
 
 model Alert {
-  id        String       @id @default(cuid())
-  type      AlertType
-  channel   AlertChannel
+  id      String       @id @default(cuid())
+  type    AlertType
+  channel AlertChannel
 
-  title     String
-  message   String       @db.Text
-  metadata  Json?
+  title    String
+  message  String @db.Text
+  metadata Json?
 
-  sent      Boolean      @default(false)
-  sentAt    DateTime?
-  error     String?      @db.Text
+  sent   Boolean   @default(false)
+  sentAt DateTime?
+  error  String?   @db.Text
 
-  createdAt DateTime     @default(now())
+  createdAt DateTime @default(now())
 
   @@index([sent])
   @@index([createdAt])
 }
-
-
 
 model ActivityLog {
   id          String       @id @default(cuid())
@@ -302,10 +294,10 @@ model ActivityLog {
   metadata    Json?
   ipAddress   String?
 
-  userId      String?
-  user        User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([createdAt])
