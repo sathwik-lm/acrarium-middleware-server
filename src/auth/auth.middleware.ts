@@ -9,7 +9,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     return res.status(401).json({ message: "No token provided" });
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1]; 
+
+  if (!token) {
+    return res.status(401).json({ message: "Token is missing" });
+  }
 
   const blacklisted = await db.blacklistedToken.findUnique({
     where: { token },

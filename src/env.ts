@@ -14,6 +14,8 @@ export const env = createEnv({
     JWT_REFRESH_SECRET: z.string().min(32, "JWT refresh secret must be at least 32 characters"),
     ACCESS_TOKEN_EXPIRES: z.string().default("15m"),
     REFRESH_TOKEN_EXPIRES: z.string().default("7d"),
+    EMAIL_USER:z.string(),
+    EMAIL_PASS:z.string(),
   },
 
   clientPrefix: "PUBLIC_",
@@ -28,6 +30,9 @@ export const env = createEnv({
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     ACCESS_TOKEN_EXPIRES: process.env.ACCESS_TOKEN_EXPIRES,
     REFRESH_TOKEN_EXPIRES: process.env.REFRESH_TOKEN_EXPIRES,
+    EMAIL_PASS:process.env.EMAIL_PASS,
+    EMAIL_USER:process.env.EMAIL_USER,
+
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
@@ -54,6 +59,10 @@ export const config = {
     accessTokenExpires: env.ACCESS_TOKEN_EXPIRES,
     refreshTokenExpires: env.REFRESH_TOKEN_EXPIRES,
   },
+  email:{
+    emailId:env.EMAIL_USER,
+    pass:env.EMAIL_PASS
+  }
 } as const;
 
 if (config.isDevelopment) {
