@@ -1,24 +1,34 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import { env } from './env';
-import authRoutes from "./auth/auth.routes";
-import userRoutes from "./user/user.routes";
+import { redisClient } from './config/redis';
+import { esClient } from './config/elasticsearch';
 const app = express();
-const prisma = new PrismaClient();
+
 
 app.use(express.json());
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Crash Analytics API',
+  res.json({
+    message: 'Acrarium Middleware Application',
     status: 'running'
   });
 });
 
 
+async function startServer() {
+  try {
+    await redisClient.connect();
+    await esClient.ping();
+    console.log("esClient connected");
+    app.listen(env.PORT, () => {
+      console.log(` Server running on http://localhost:${env.PORT}`);
+    });
+  } catch (error) {
+    console.log("Failed to start server", error);
+    process.exit(1);
+  }
+}
 
-app.listen(env.PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${env.PORT}`);
-});
+startServer()
+
+
