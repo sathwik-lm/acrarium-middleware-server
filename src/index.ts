@@ -2,6 +2,7 @@ import express from 'express';
 import { env } from './env';
 import { redisClient } from './config/redis';
 import { esClient } from './config/elasticsearch';
+import crashRouter from './routes/crash.routes'
 const app = express();
 
 
@@ -14,12 +15,13 @@ app.get('/', (req, res) => {
   });
 });
 
+app.use('/api', crashRouter);
 
 async function startServer() {
   try {
     await redisClient.connect();
     await esClient.ping();
-    console.log("esClient connected");
+    console.log("✅ Elasticsearch connected");
     app.listen(env.PORT, () => {
       console.log(` Server running on http://localhost:${env.PORT}`);
     });
