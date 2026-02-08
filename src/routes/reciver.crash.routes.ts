@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CrashController } from "../controllers/crash.controller";
+import { CrashController } from "../controllers/reciver.crash.controller";
 
 const router = Router();
 

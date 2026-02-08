@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import crashRoutes from '../../src/routes/crash.routes';
+import crashRoutes from '../../src/routes/reciver.crash.routes';
 
 jest.mock('../../src/config/elasticsearch', () => ({
   esClient: {

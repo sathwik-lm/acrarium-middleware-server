@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { crashSchema } from "../types/crash.types";
-import { CrashService } from "../services/crash.service";
+import { CrashService } from "../services/reciver.crash.service";
 
 export class CrashController {
     static async receiveCrash(req: Request, res: Response) {

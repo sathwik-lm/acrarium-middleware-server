@@ -2,7 +2,7 @@ import express from 'express';
 import { env } from './env';
 import { redisClient } from './config/redis';
 import { esClient } from './config/elasticsearch';
-import crashRouter from './routes/crash.routes'
+import crashRouter from './routes/reciver.crash.routes'
 const app = express();
 
 
