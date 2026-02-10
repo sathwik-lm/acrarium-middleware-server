@@ -3,6 +3,7 @@ import { env } from './env';
 import { redisClient } from './config/redis';
 import { esClient } from './config/elasticsearch';
 import crashRouter from './routes/reciver.crash.routes'
+import controlRouter from './routes/control.crash.routes'
 const app = express();
 
 
@@ -16,6 +17,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', crashRouter);
+app.use('/api/control', controlRouter)
 
 async function startServer() {
   try {
