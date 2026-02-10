@@ -7,7 +7,7 @@
     "sender": "tsx src/sender.ts",
     "cleanup": "tsx src/cleanup.ts",
     "monitor": "tsx src/monitor.ts",
-    "build": "npm test && bun build src/index.ts --outdir ./dist --target node",
+    "build": "npm test && tsc && cp -r dist/ .",
     "start": "node dist/index.js",
     "test": "jest"
   },
